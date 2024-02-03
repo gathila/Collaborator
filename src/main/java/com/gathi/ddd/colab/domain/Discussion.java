@@ -1,6 +1,8 @@
 package com.gathi.ddd.colab.domain;
 
 
+import com.gathi.ddd.colab.domain.user.Author;
+import com.gathi.ddd.colab.domain.user.Member;
 import lombok.Data;
 
 import java.util.List;
