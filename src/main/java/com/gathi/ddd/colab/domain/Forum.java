@@ -1,16 +1,24 @@
 package com.gathi.ddd.colab.domain;
 
 import com.gathi.ddd.colab.domain.user.Author;
+import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.IdGeneratorType;
 
 import java.util.Date;
 
 @Data
+@Entity
 public class Forum {
 
-    private String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "author_id")
     private final Author author;
+
     private String topic;
     private String description;
     private final Date createdDateTime;
@@ -31,6 +39,16 @@ public class Forum {
             throw new IllegalStateException("Forum is closed");
         }
 
-        return new Discussion(id, author, topic);
+        Discussion discussion = new Discussion(this, author, topic);
+
+//        DomainEventPublisher
+//                .instance()
+//                .publish(new DiscussionStarted(
+//                        discussion.tenant(),
+//                        discussion.forumId(),
+//                        discussion.discussionId(),
+//                        discussion.subject()));
+
+        return discussion;
     }
 }

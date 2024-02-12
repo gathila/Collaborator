@@ -2,31 +2,49 @@ package com.gathi.ddd.colab.domain;
 
 
 import com.gathi.ddd.colab.domain.user.Author;
-import com.gathi.ddd.colab.domain.user.Member;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@Entity
 public class Discussion {
 
-    private String forumId;
-    private String id;    //unique Id, to be generated in persisting changes
-    private Author author;
-    private String topic;
-    private boolean isActive;
+    //use custom id generator and generate id before saving to the db
+    @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
+    private Long id;    //unique Id, to be generated in persisting changes
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "forum_id")  //forum_id colum is located in discussion table
+    private Forum forum;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id")
+    private Author author;
+
+    private String topic;
+
+    @OneToMany(
+            mappedBy = "discussion",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER)
     private List<Post> posts;
 
-    public Discussion(String forumId, Author author, String topic) {
-        this.forumId = forumId;
+    private boolean isActive;
+
+
+
+    public Discussion(Forum forum, Author author, String topic) {
+        this.forum = forum;
         this.author = author;
         this.topic = topic;
         this.isActive = true;
     }
 
-    public Post newPost(String discussionId, Member member, String content) {
-        Post post = new Post(discussionId, member, content);
+    public Post newPost(Author author, String content) {
+        Post post = new Post(this, author, content);
         posts.add(post);
 
         return post;
